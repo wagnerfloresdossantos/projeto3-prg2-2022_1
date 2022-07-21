@@ -4,6 +4,96 @@
 #include <list>
 
 using namespace std;
+//struct
+struct classe{
+    //Elementos obtidos do arquivo csv
+    string data;
+    double valor;
+
+};
+
+//Função que separa uma linha baseada em um caracter passado para a mesma
+    list<string> separa(const string &texto, const string &sep) {
+
+        //declara uma variável temporaria para devolver o resultado como lista
+        list<string> lista;
+
+        //caso não tenha nada dentro do texto , devolve uma lista vazia
+        if (!texto.empty()) {
+            //Variavel pos = posições do character separa
+            //Variavel coisa = Copia de algo que está declarada como constante
+            int pos = 0;
+            string coisa = texto;
+
+            //loop que separa a string
+            //pos recebe a posição do character 'sep'
+            //Coloca a substring de 0 até pos dentro da fila
+            //Apaga a substring utilizada
+            while (pos != string::npos) {
+                pos = coisa.find(sep);
+                lista.push_back(coisa.substr(0, pos));
+                coisa.erase(0, pos + 1);
+            }
+        }
+        return lista;
+
+}
+
+void adiciona_a_classe(list<string> & lista,classe & classe_temporario)
+{
+    //A lista está ordenada da mesma forma que o arquivo
+    //Primeiro código da classe
+    classe_temporario.data = lista.front();
+    lista.pop_front();
+
+    //Segundo prioridade da classe
+    classe_temporario.valor = stod(lista.front());
+    lista.pop_front();
+}
+
+//Função Leitura do arquivo csv
+list<classe> leitura_csv(ifstream & arq ){
+    //Lista onde Todas as classes passadas pelo arquivo vão ser armazenadas
+    //String linha para a leitura das linhas do arquivo
+    list<classe> temp_classes;
+    string linha;
+
+    //Enquanto é possivel ler uma linha desse arquivo ele repete o loop
+    while (getline(arq, linha)) {
+
+        //Declaração de Lista temporaria e de classe temporaria
+        //lista temporaria que contem os dados de uma linha do arquivo
+        //classe_de_clientes temporaria os quais serão armazenados dentro da fila de classes
+        list<string> lista_temporaria = separa(linha, " ");
+        classe classe_temporaria;
+
+        //Chama o adiona_a_classe que converte os dados que estão na lista em uma classe_temporaria
+        //Logo em seguida pega a classe_temporaria e armazena em uma lista com todas as classes
+        adiciona_a_classe(lista_temporaria, classe_temporaria);
+        temp_classes.push_back(classe_temporaria);
+    }
+
+    return temp_classes;
+}
+void mms(list<classe> & classes, int periodo){
+    //variavel para dominador da conta
+    int dominador;
+    //variavel para denominador da conta
+    int denominador;
+    //lista temporária com os valores a serem mostrados
+    list<classe>lista_temp;
+
+    for(auto & x:lista_temp){
+
+        }
+    }
+
+void mmp(list<classe> & classes, int periodo) {
+    int dominador;
+    for(auto & x:classes){
+
+    }
+}
 
 int main(int argc, char **argv) {
 
@@ -14,10 +104,6 @@ int main(int argc, char **argv) {
     if (!arq.is_open()) {
         perror("Erro ao abrir o Arquivo!");
     }
-    //Verifica se os argumentos de linha são suficientes
-    if (argc <= 3) {
-        perror("Falta argumento na linha de comando!");
-    }
 
     //cria a variavel inteiro intervalo a ser informado por argv[2]
     int intervalo = stoi(argv[2]);
@@ -25,83 +111,20 @@ int main(int argc, char **argv) {
     //cria a variavel string tipo que vai definir o tipo de mdia a ser apurada informada por arv[3]
     string tipo = argv[3];
 
-    //lista do tipo double que vai receber os dados a serem avaliados
-    list<double> lista;
+    list<classe>classes = leitura_csv(arq);
 
-   //Abertura do arquivo e criaçao da lista
-   //linha arquivo
-    string linha;
-    //laço para leitura das linhas
-    while (getline(arq, linha)) {
-        //caso não tenha nada dentro do texto devolve uma lista vazia
-        if (!linha.empty()) {
-            //variável pos inicia em 0
-            int pos = 0;
-            //laço para leitura do valor desejado
-            while (pos != string::npos) {
-                pos = linha.find(" ");
-                lista.push_back(stod(linha.substr(pos, linha.size())));
-                pos = -1;
-            }
-        }
+    //Verifica se os argumentos de linha são suficientes
+    if (argc <= 3) {
+        perror("Falta argumento na linha de comando!");
     }
+
     if(tipo == "mms" || tipo == "") {
-        //Calculo da Media Movel Simples
-        //variavel da media movel simples
-        double mms;
-        cout << "Cálculo da Média Móvel Simples" << endl;
-        //laço para contabilizar o periodo lido
-        for (int j = 0.; j <= lista.size(); j++) {
-            //obtem iterador para primeiro elemento da lista
-            auto x = lista.begin();
-            //mostra na tela o periodo a ser apurado e o intervalor selecionado via argv[2]
-            cout << "Periodo=" << j << " " << "Intervalo=" << intervalo << " ";
-            //laço que percorre o intervalo do periodo
-            for (int i = 0; i < intervalo; i++) {
-                //mostra os dados contabilizados no intervalo
-                cout << i << "=" << *x << " ";
-                //faz o calculo do dominador
-                mms += *x;
-                //interaçao do elemento da lista
-                x++;
-            }
-            //remove o primieor dados da lista
-            lista.pop_front();
-            //mostra o resultado da Media Movel Simples apurada em cada periodo
-            cout << "MMS=" << mms / intervalo << endl;
-            //zera a variavel da media movel para fazer os calculos do proximo periodo
-            mms = 0;
-        }
+        //chama a função que calcula a media movel simples
+        mms(classes, intervalo);
     }else {
-        double mmp;
-        int mmp_deno;
-        cout << "Cálculo da Média Móvel Ponderada" << endl;
-        //laço para contabilizar o periodo lido
-        for (int j = 0.; j <= lista.size(); j++) {
-            //obtem iterador para primeiro elemento da lista
-            auto x = lista.begin();
-            //mostra na tela o periodo a ser apurado e o intervalor selecionado via argv[2]
-            cout << "Periodo=" << j << " " << "Intervalo=" << intervalo << " ";
-            //laço que percorre o intervalo do periodo
-            for (int i = 0; i < intervalo; i++) {
-                //mostra os dados contabilizados no intervalo
-                cout << i << "=" << *x << " ";
-                //faz o calculo do dominador
-                mmp += *x * (i + 1);
-                //faz o calculo do denominador
-                mmp_deno += (i + 1);
-                //interaçao do elemento da lista
-                x++;
-            }
-            //remove o primieor dados da lista
-            lista.pop_front();
-            //mostra o resultado da Media Movel Simples apurada em cada periodo
-            cout << "MMP=" << mmp / mmp_deno << endl;
-            //zera a variavel da media movel para fazer os calculos do proximo periodo
-            mmp = 0;
-            //zera a variavel do denominador
-            mmp_deno = 0;
-        }
+        //chama a função quelcula a media movel ponderada
+        mmp(classes, intervalo);
+
     }
 
 
