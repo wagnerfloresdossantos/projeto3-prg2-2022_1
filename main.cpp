@@ -75,23 +75,45 @@ list<classe> leitura_csv(ifstream & arq ){
 
     return temp_classes;
 }
-void mms(list<classe> & classes, int periodo){
-    //variavel para dominador da conta
-    int dominador;
-    //variavel para denominador da conta
-    int denominador;
+void mms(list<classe> & classes, int periodo) {
+
     //lista temporária com os valores a serem mostrados
-    list<classe>lista_temp;
+    list<string> lista_temp;
 
-    for(auto & x:lista_temp){
-
+    for (auto it = classes.begin(); it != classes.end(); it++) {
+        it = classes.begin();
+        //variavel para numerador da conta
+        double numerador = 0;
+        for (int i = 0; i < periodo; i++) {
+            numerador += it->valor + (i + 1);
+            it++;
         }
+        it--;
+        lista_temp.push_back(to_string(numerador / periodo)+" "+( it->data));
+        classes.pop_front();
     }
-
+    for (auto &y: lista_temp) {
+        cout << y<< endl;
+    }
+}
 void mmp(list<classe> & classes, int periodo) {
-    int dominador;
-    for(auto & x:classes){
+    //lista temporária com os valores a serem mostrados
+    list<string> lista_temp;
 
+    for (auto it = classes.begin(); it != classes.end(); it++) {
+        it = classes.begin();
+        //variavel para numerador da conta
+        double numerador = 0;
+        for (int i = 0; i < periodo; i++) {
+            numerador += it->valor + (i + 1);
+            it++;
+        }
+        it--;
+        lista_temp.push_back(to_string(numerador / periodo)+" "+( it->data));
+        classes.pop_front();
+    }
+    for (auto &y: lista_temp) {
+        cout << y<< endl;
     }
 }
 
