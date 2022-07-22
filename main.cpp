@@ -2,6 +2,7 @@
 #include <fstream>
 #include "errno.h"
 #include <list>
+#include <iomanip>
 
 using namespace std;
 //struct
@@ -39,6 +40,19 @@ struct classe{
 
 }
 
+classe cria_classe(const list<string> & lista)
+{
+    //A lista está ordenada da mesma forma que o arquivo
+    //Primeiro código da classe
+    classe classe_temporario;
+
+    classe_temporario.data = lista.front();
+    //Segundo prioridade da classe
+    classe_temporario.valor = stod(lista.back());
+
+    return classe_temporario;
+}
+
 void adiciona_a_classe(list<string> & lista,classe & classe_temporario)
 {
     //A lista está ordenada da mesma forma que o arquivo
@@ -69,11 +83,27 @@ list<classe> leitura_csv(ifstream & arq ){
 
         //Chama o adiona_a_classe que converte os dados que estão na lista em uma classe_temporaria
         //Logo em seguida pega a classe_temporaria e armazena em uma lista com todas as classes
-        adiciona_a_classe(lista_temporaria, classe_temporaria);
-        temp_classes.push_back(classe_temporaria);
+//        adiciona_a_classe(lista_temporaria, classe_temporaria);
+//        temp_classes.push_back(classe_temporaria);
+        temp_classes.push_back(cria_classe(lista_temporaria));
     }
 
     return temp_classes;
+}
+
+void setar_casas_decimais(const int & n){
+    setprecision(n);
+}
+
+void calculo_final(double & nominador,int & denominador){
+
+        double resultado = nominador/denominador;
+
+}
+void mostra_tela(list<string> & lista){
+    for (auto &y: lista) {
+          cout << y << endl;
+    }
 }
 void mms(list<classe> & classes, int periodo) {
 
@@ -89,13 +119,12 @@ void mms(list<classe> & classes, int periodo) {
             it++;
         }
         it--;
-        lista_temp.push_back(to_string(numerador / periodo)+" "+( it->data));
+        lista_temp.push_back(to_string(numerador / (periodo))+" "+( it->data));
         classes.pop_front();
     }
-    for (auto &y: lista_temp) {
-        cout << y<< endl;
-    }
+    mostra_tela(lista_temp);
 }
+
 void mmp(list<classe> & classes, int periodo) {
     //lista temporária com os valores a serem mostrados
     list<string> lista_temp;
@@ -104,20 +133,26 @@ void mmp(list<classe> & classes, int periodo) {
         it = classes.begin();
         //variavel para numerador da conta
         double numerador = 0;
+        double denominador=0;
         for (int i = 0; i < periodo; i++) {
-            numerador += it->valor + (i + 1);
+            numerador += it->valor * (i + 1);
+            denominador += (i+1);
             it++;
         }
         it--;
-        lista_temp.push_back(to_string(numerador / periodo)+" "+( it->data));
+        lista_temp.push_back(to_string(numerador / denominador)+" "+( it->data));
         classes.pop_front();
     }
-    for (auto &y: lista_temp) {
-        cout << y<< endl;
-    }
+    mostra_tela(lista_temp);
+
 }
 
+
 int main(int argc, char **argv) {
+    //Verifica se os argumentos de linha são suficientes
+    if (argc <= 3) {
+        perror("Falta argumento na linha de comando!");
+    }
 
     //Abre o arquivo
     ifstream arq(argv[1]);
@@ -131,16 +166,14 @@ int main(int argc, char **argv) {
     int intervalo = stoi(argv[2]);
 
     //cria a variavel string tipo que vai definir o tipo de mdia a ser apurada informada por arv[3]
-    string tipo = argv[3];
+    string tipo;
+    if (argc > 3) {
+        tipo = argv[3];
+    }
 
     list<classe>classes = leitura_csv(arq);
 
-    //Verifica se os argumentos de linha são suficientes
-    if (argc <= 3) {
-        perror("Falta argumento na linha de comando!");
-    }
-
-    if(tipo == "mms" || tipo == "") {
+    if(tipo == "mms" || tipo.empty()) {
         //chama a função que calcula a media movel simples
         mms(classes, intervalo);
     }else {
@@ -149,7 +182,7 @@ int main(int argc, char **argv) {
 
     }
 
-
+    cout << setprecision(3) << 3.2255 << endl;
 
 }
 
