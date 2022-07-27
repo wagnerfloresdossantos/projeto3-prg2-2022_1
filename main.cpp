@@ -3,155 +3,35 @@
 #include "errno.h"
 #include <list>
 #include <iomanip>
+#include "sistema.h"
+#include "deque.h"
+#include "fila_circular_impl.h"
+#include "deque_impl.h"
 
 using namespace std;
-//struct
-struct classe{
-    //Elementos obtidos do arquivo csv
-    string data;
-    double valor;
 
-};
 
-//Função que separa uma linha baseada em um caracter passado para a mesma
-    list<string> separa(const string &texto, const string &sep) {
+string deque2string(prg2::deque<int> & q, char delim=',') {
+    string r;
 
-        //declara uma variável temporaria para devolver o resultado como lista
-        list<string> lista;
-
-        //caso não tenha nada dentro do texto , devolve uma lista vazia
-        if (!texto.empty()) {
-            //Variavel pos = posições do character separa
-            //Variavel coisa = Copia de algo que está declarada como constante
-            int pos = 0;
-            string coisa = texto;
-
-            //loop que separa a string
-            //pos recebe a posição do character 'sep'
-            //Coloca a substring de 0 até pos dentro da fila
-            //Apaga a substring utilizada
-            while (pos != string::npos) {
-                pos = coisa.find(sep);
-                lista.push_back(coisa.substr(0, pos));
-                coisa.erase(0, pos + 1);
-            }
+    // somente gera a string de resultado se deque não estiver vazio
+    if (! prg2::deque_vazio(q)) {
+        auto len = prg2::deque_tamanho(q);
+        // itera o deque, convertendo seus valores para string e unindo-os com o caractere delim
+        for (int j = 0; j < len; j++) {
+            r += std::to_string(prg2::deque_acessa(q, j)) + delim;
         }
-        return lista;
-
-}
-
-classe cria_classe(const list<string> & lista)
-{
-    //A lista está ordenada da mesma forma que o arquivo
-    //Primeiro código da classe
-    classe classe_temporario;
-
-    classe_temporario.data = lista.front();
-    //Segundo prioridade da classe
-    classe_temporario.valor = stod(lista.back());
-
-    return classe_temporario;
-}
-
-void adiciona_a_classe(list<string> & lista,classe & classe_temporario)
-{
-    //A lista está ordenada da mesma forma que o arquivo
-    //Primeiro código da classe
-    classe_temporario.data = lista.front();
-    lista.pop_front();
-
-    //Segundo prioridade da classe
-    classe_temporario.valor = stod(lista.front());
-    lista.pop_front();
-}
-
-//Função Leitura do arquivo csv
-list<classe> leitura_csv(ifstream & arq ){
-    //Lista onde Todas as classes passadas pelo arquivo vão ser armazenadas
-    //String linha para a leitura das linhas do arquivo
-    list<classe> temp_classes;
-    string linha;
-
-    //Enquanto é possivel ler uma linha desse arquivo ele repete o loop
-    while (getline(arq, linha)) {
-
-        //Declaração de Lista temporaria e de classe temporaria
-        //lista temporaria que contem os dados de uma linha do arquivo
-        //classe_de_clientes temporaria os quais serão armazenados dentro da fila de classes
-        list<string> lista_temporaria = separa(linha, " ");
-        classe classe_temporaria;
-
-        //Chama o adiona_a_classe que converte os dados que estão na lista em uma classe_temporaria
-        //Logo em seguida pega a classe_temporaria e armazena em uma lista com todas as classes
-//        adiciona_a_classe(lista_temporaria, classe_temporaria);
-//        temp_classes.push_back(classe_temporaria);
-        temp_classes.push_back(cria_classe(lista_temporaria));
+        // remove o caractere delimitador em excesso
+        r.pop_back();
     }
 
-    return temp_classes;
+    return r;
 }
-
-void setar_casas_decimais(const int & n){
-    setprecision(n);
-}
-
-void calculo_final(double & nominador,int & denominador){
-
-        double resultado = nominador/denominador;
-
-}
-void mostra_tela(list<string> & lista){
-    for (auto &y: lista) {
-          cout << y << endl;
-    }
-}
-void mms(list<classe> & classes, int periodo) {
-
-    //lista temporária com os valores a serem mostrados
-    list<string> lista_temp;
-
-    for (auto it = classes.begin(); it != classes.end(); it++) {
-        it = classes.begin();
-        //variavel para numerador da conta
-        double numerador = 0;
-        for (int i = 0; i < periodo; i++) {
-            numerador += it->valor + (i + 1);
-            it++;
-        }
-        it--;
-        lista_temp.push_back(to_string(numerador / (periodo))+" "+( it->data));
-        classes.pop_front();
-    }
-    mostra_tela(lista_temp);
-}
-
-void mmp(list<classe> & classes, int periodo) {
-    //lista temporária com os valores a serem mostrados
-    list<string> lista_temp;
-
-    for (auto it = classes.begin(); it != classes.end(); it++) {
-        it = classes.begin();
-        //variavel para numerador da conta
-        double numerador = 0;
-        double denominador=0;
-        for (int i = 0; i < periodo; i++) {
-            numerador += it->valor * (i + 1);
-            denominador += (i+1);
-            it++;
-        }
-        it--;
-        lista_temp.push_back(to_string(numerador / denominador)+" "+( it->data));
-        classes.pop_front();
-    }
-    mostra_tela(lista_temp);
-
-}
-
 
 int main(int argc, char **argv) {
     //Verifica se os argumentos de linha são suficientes
     if (argc <= 3) {
-        perror("Falta argumento na linha de comando!");
+        perror("Falta argumento na linha de comando!sera apresentada a Media Movel Simples");
     }
 
     //Abre o arquivo
@@ -170,19 +50,24 @@ int main(int argc, char **argv) {
     if (argc > 3) {
         tipo = argv[3];
     }
+    // cria um deque que armazena int
+    auto q = prg2::fila_cria<int> (4);
+    // cria um deque que armazena int
+    auto q1 = prg2::deque_cria<int>();
 
+    //adiciona a lista de classes os dados do arquivo CSV
     list<classe>classes = leitura_csv(arq);
-
+    //se for selecionado via argv[3] mms ou em branco, chama a funçao Media Movel Simples
     if(tipo == "mms" || tipo.empty()) {
         //chama a função que calcula a media movel simples
         mms(classes, intervalo);
+    //senao chama a Media Movel Ponderada
     }else {
         //chama a função quelcula a media movel ponderada
         mmp(classes, intervalo);
-
+        //chama a função quelcula a media movel ponderada
+//        mmp_deque(classes, intervalo);
     }
-
-    cout << setprecision(3) << 3.2255 << endl;
 
 }
 
